@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Learing matrix</title>
+	<style type="text/css">
+		td {
+			border: 1px solid green;
+		}
+		canvas {
+			border: 1px solid green;
+		}
+	</style>
+</head>
+<body>
+
+	<canvas id="square"></canvas>
+	<canvas id="square2"></canvas>
+	<canvas id="binaryVector1"></canvas>	
+
+	<script type="text/javascript">
+		var img = new Image();
+		img.src = 'textura1.jpg';
+		var canvas = document.getElementById("square");
+		var canvas2 = document.getElementById("square2");
+		
+		var createMatrix = function(img1, canvas1) {
+		var j;
+		var context = canvas1.getContext('2d');
+		canvas1.width = img1.width;
+		canvas1.height = img1.height;
+		context.drawImage(img1, 0, 0, img1.width, img1.height);
+		//create multidimensional array
+		var learnMatrix = [];
+		for (var row = 0; row<img1.height; row++) {
+			learnMatrix[row] = [];
+		}
+		document.write('<table>');
+		for(var i=0; i<canvas1.height; i++) {
+			document.write('<tr>');
+			j=0;
+			for (j; j<canvas1.width; j++) {
+				document.write('<td>');			
+				var imgd = context.getImageData(i, j, 1, 1);
+				var pix = imgd.data;
+				var r = pix[0];
+			    var g = pix[1];
+			    var b = pix[2];
+			    var rgbAverage = Math.round((r+g+b)/3);//It does not make sense, 
+			    //because the spectra are in gray shades
+			    learnMatrix[i][j] = rgbAverage;
+			    document.write(rgbAverage);
+			    document.write('</td>');
+			}
+			document.write('</tr>');
+		}
+		document.write('</table>');
+		return learnMatrix;
+		}
+
+		var createBinaryMatrix = function(learMatrix) {
+			var sumElemInLine;
+			var averageSumElLine;
+			var vdk=[];
+			var ndk=[];
+			var delta=50;
+			//create multidimensional array for binary matrix
+			var binaryMatrix = [];
+			for (var row2 = 0; row2<learMatrix.length; row2++) {
+				binaryMatrix[row2] = [];
+			}
+			var averRgb = 0;
+			for(var row = 0; row < learMatrix.length; row++) {
+				sumElemInLine=0;
+				averageSumElLine=0;
+				for(col = 0; col < learMatrix[row].length; col++) {
+					sumElemInLine = sumElemInLine + learMatrix[row][col];
+				}
+				averageSumElLine=Math.round(sumElemInLine/col);
+				//document.write(averageSumElLine);
+				//document.write("<br>");
+				vdk[row]=averageSumElLine+delta;
+				ndk[row]=averageSumElLine-delta;
+				//document.write("vdk["+row+"] = "+vdk[row]);
+				//document.write("<br>");
+				//document.write("ndk["+row+"] = "+ndk[row]);
+				//document.write("<br>");
+			}
+			//binary matrix
+			document.write("<table>");
+			for (var row1 = 0; row1<learMatrix.length; row1++) {
+				document.write("<tr>");	
+				for (var col1 = 0; col1<learMatrix[row1].length; col1++) {
+					document.write("<td>");
+					averRgb=learMatrix[row1][col1];
+					if ((averRgb>=ndk[row1]) && (averRgb<=vdk[row1])){
+						binaryMatrix[row1][col1]=1;
+					} else {
+						binaryMatrix[row1][col1]=0;
+					}
+					document.write(binaryMatrix[row1][col1]);
+					document.write("</td>");
+				}
+				document.write("</tr>");
+			}
+			document.write("</table>");
+			//the end binary matrix
+			return binaryMatrix;
+		}
+
+		var imageBinaryMatrix = function(binMatrix,canvas2) {
+			var canvasBinary = canvas2;	
+			var contextBinary = canvasBinary.getContext('2d');
+			canvasBinary.height = binMatrix.length;
+			for(var row4 = 0; row4<1; row4++){
+				for(var col4 = 0; col4<binMatrix[row4].length; col4++){
+				}
+				canvasBinary.width = col4;
+			}
+			var i2 = 0;
+			var imgData=contextBinary.createImageData(canvasBinary.width,canvasBinary.height);
+			for(var row5 = 0; row5<binMatrix.length; row5++){
+				for(var col5 = 0; col5<binMatrix[row5].length; col5++){
+					//for (var i=0;i<imgData.data.length;i=i+4) {
+						if(binMatrix[row5][col5] == 1){						
+							imgData.data[i2+0]=0;
+							imgData.data[i2+1]=0;
+							imgData.data[i2+2]=0;
+							imgData.data[i2+3]=255;					  
+						}else{						
+							imgData.data[i2+0]=255;
+							imgData.data[i2+1]=255;
+							imgData.data[i2+2]=255;
+							imgData.data[i2+3]=255;					  
+						}
+						i2=i2+4;
+					//}							
+				}					
+			}
+			contextBinary.putImageData(imgData,0,0);
+		}
+
+		var createBinaryVector = function(binaryMatrix) {
+			var kol1_0;
+			var kol1_1;
+			var binaryVector = [];
+			for (var i = 0; i < binaryMatrix.length; i++) {
+				kol1_1 = 0;
+				kol1_0 = 0;
+				for (var j = 0; j < binaryMatrix[i].length; j++) {
+					if (binaryMatrix[i][j] == 1) {
+						kol1_1 = kol1_1 + 1;
+					}else{
+						kol1_0 = kol1_0 + 1;
+					}
+				}
+				if (kol1_1 >= j/2) {
+					binaryVector[i] = 1;					
+					document.write(binaryVector[i]);
+				}else{
+					binaryVector[i] = 0;
+					document.write(binaryVector[i]);
+				}						
+			}
+			return binaryVector;
+		}
+
+		var imageBinaryVector = function(binaryVector,canvas) {
+			var canvasBinVect = canvas;	
+			var contextBinVect = canvasBinVect.getContext('2d');
+			canvasBinVect.width = binaryVector.length;
+			canvasBinVect.height = 10;	
+			var i = 0;
+			var imgData=contextBinVect.createImageData(canvasBinVect.width,10);
+			for(var k = 0; k<10; k++){
+				for(var l = 0; l<canvasBinVect.width; l++){
+						if(binaryVector[l] == 1){						
+							imgData.data[i+0]=0;
+							imgData.data[i+1]=0;
+							imgData.data[i+2]=0;
+							imgData.data[i+3]=255;					  
+						}else{						
+							imgData.data[i+0]=255;
+							imgData.data[i+1]=255;
+							imgData.data[i+2]=255;
+							imgData.data[i+3]=255;					  
+						}
+						i=i+4;
+					//}							
+				}					
+			}
+			contextBinVect.putImageData(imgData,0,0);
+		}
+
+		//createMatrix(img, canvas);
+		var imgbinm = createBinaryMatrix(createMatrix(img, canvas));
+		imageBinaryMatrix(imgbinm,canvas2);
+		//createBinaryVector(imgbinm);
+		var canvasBinVect1 = document.getElementById("binaryVector1");
+		imageBinaryVector(createBinaryVector(imgbinm),canvasBinVect1);
+
+		/*
+		//change background, just for game
+		canvas.onclick = function(e) {
+		    var x = e.pageX;
+		    var y = e.pageY;
+		    var canvasColor = context.getImageData(x, y, 1,1); // rgba e [0,255]
+		    var pixels = canvasColor.data;
+		    var r = pixels[0];
+		    var g = pixels[1];
+		    var b = pixels[2];
+		    document.body.style.backgroundColor = "rgb("+r+','+g+','+b+")";
+		}
+		*/
+	</script>
+
+	<div>Second class</div>
+
+	<canvas id="square3"></canvas>
+	<canvas id="square4"></canvas>
+	<canvas id="binaryVector2"></canvas>
+	<script type="text/javascript">
+		var img2 = new Image();
+		img2.src = 'textura2.jpg';
+		var canvas3 = document.getElementById("square3");
+		var canvas4 = document.getElementById("square4");
+		var imgbinm2 = createBinaryMatrix(createMatrix(img2, canvas3));
+		imageBinaryMatrix(imgbinm2,canvas4);
+		//createBinaryVector(imgbinm2);
+		var canvasBinVect2 = document.getElementById("binaryVector2");
+		imageBinaryVector(createBinaryVector(imgbinm2),canvasBinVect2);
+	</script>
+
+	<div>Third class</div>
+
+	<canvas id="square5"></canvas>
+	<canvas id="square6"></canvas>
+	<canvas id="binaryVector3"></canvas>
+	<script type="text/javascript">
+		var img3 = new Image();
+		img3.src = 'textura3.jpg';
+		var canvas5 = document.getElementById("square5");
+		var canvas6 = document.getElementById("square6");
+		var imgbinm3 = createBinaryMatrix(createMatrix(img3, canvas5));
+		imageBinaryMatrix(imgbinm3,canvas6);
+		//createBinaryVector(imgbinm2);
+		var canvasBinVect3 = document.getElementById("binaryVector3");
+		imageBinaryVector(createBinaryVector(imgbinm3),canvasBinVect3);
+	</script>
+
+	<!--
+	<div>
+		<img id="image" src="textura1.jpg">
+	</div>
+	-->	
+</body>
+</html>
