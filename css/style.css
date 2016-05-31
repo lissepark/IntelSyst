@@ -1,0 +1,19 @@
+td {
+	border: 1px solid green;
+}
+
+canvas {
+	border: 1px solid green;
+}
+
+.meanVectorCell{
+	color:red;
+}
+
+.permitUpperCell{
+	color:blue;
+}
+
+.permitLowerCell{
+	color:blue;
+}
